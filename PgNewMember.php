@@ -103,7 +103,7 @@ $title = "";
         $landline = "";
         $mobile = "";
         $email = "";
-        $incontact = NULL; // $_POST[''];
+        $incontact = "";
         $month = NULL; // $_POST[''];
         $receiptno = NULL; //$_POST[''];
         $duration = "";
@@ -128,13 +128,13 @@ $duration = 0;
 
 
 
-// Don't post the form until the submit button is pressed.
-$requiredFields = array('name', 'surname', 'idcard', 'address', 'street', 'locality', 'email');    // Add the 'name' for all required fields to this array
+// Don't post the form until the submit button is pressed. //added gender as required | added gender to the array
+$requiredFields = array('name', 'surname', 'idcard', 'address', 'street', 'gender', 'locality', 'email');    // Add the 'name' for all required fields to this array
 $errors = false;
 if (isset($_POST['submit'])) {
     // Clean all inputs
     array_walk($_POST, 'check_input');
-
+	
     // Loop over requiredFields and output error if any are empty
     foreach ($requiredFields as $r) {
         if (strlen($_POST[$r]) == 0) {
@@ -158,23 +158,24 @@ if (isset($_POST['submit'])) {
                 $displayError = $displayError . '<br />• ' . $r . ' cannot contain numbers.';
             }
         }
+		
         if ($r == 'idcard') {
             //Checks that idcard last letter must be a letter
             if (!(strcspn(substr($_POST[$r], -1), '0123456789') != strlen(substr($_POST[$r], -1)))) {
-               // $errors = true;
-                //$error_css = 'background-color:red';
-                //$displayError = $displayError . "<br />• " . $r . ' should be in a correct format e.g. (1234A).';
-            }
+               $errors = true;
+               $error_css = 'background-color:red';
+               $displayError = $displayError . "<br />• " . $r . ' should be in a correct format e.g. (1234A).';
+			}
         }
     }
-
 
     if (strlen($_POST['mobile']) != 0) {
         //Checks that mobile does not contain any letters
         if (!(strcspn($_POST['mobile'], '0123456789') != strlen($_POST['mobile']))) {
             $errors = true;
             $error_css = 'background-color:red';
-            $displayError = $displayError . '<br />• ' . $r . ' cannot contain letters.';
+			//removed variable r
+            $displayError = $displayError . '<br />• ' . ' mobile cannot contain letters.';
         }
     }
     if (strlen($_POST['landline']) != 0) {
@@ -182,17 +183,39 @@ if (isset($_POST['submit'])) {
         if (!(strcspn($_POST['landline'], '0123456789') != strlen($_POST['landline']))) {
             $errors = true;
             $error_css = 'background-color:red';
-            $displayError = $displayError . '<br />•' . $r . ' cannot contain letters.';
+			//removed variable r
+            $displayError = $displayError . '<br />• ' . ' landline cannot contain letters.';
         }
     }
     if (strlen($_POST['email']) != 0) {
         if (preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$/', $_POST['email'])) {
             $errors = true;
             $error_css = 'background-color:red';
-            $displayError = $displayError . '<br />•' . $r . ' should be valid (example@email.com).';
+			$displayError = $displayError . '<br />• ' . $r . ' should be valid (example@email.com).';
         }
     }
+	
+	//future date validation
+	if(isset($_POST['dob']))
+	{
+		if($dateOfBirth = date_create(($_POST['dob'])))
+		{
+			$now = date_create();
+			if($dateOfBirth >= $now)
+			{
+				$errors = true;
+            	$error_css = 'background-color:red';
+				$displayError = $displayError . '<br />• ' . ' Date of Birth cannot be empty or in the future';
+			}
+		}
+		$date_value = htmlentities($_POST['dob']); 
+	}
 
+
+	
+	
+	
+	
 $title = strip_tags($_POST['title']);
         $name = strip_tags($_POST['name']);
         $surname = strip_tags($_POST['surname']);
@@ -206,8 +229,13 @@ $title = strip_tags($_POST['title']);
         $landline = strip_tags($_POST['landline']);
         $mobile = strip_tags($_POST['mobile']);
         $email = strip_tags($_POST['email']);
-        $incontact = NULL; // $_POST[''];
-        $month = NULL; // $_POST[''];
+        $incontact = strip_tags($_POST['inContact']);
+        //requirement 5 - new fields in db
+		$timeDeleted = NULL;
+		$recordDeletedBy = NULL;
+		$recordDeletedReason = NULL;
+		
+		$month = NULL; // $_POST[''];
         $receiptno = NULL; //$_POST[''];
         $duration = strip_tags($_POST['duration']);
         $expdate = strip_tags($_POST['expdate']);
@@ -223,7 +251,7 @@ $title = strip_tags($_POST['title']);
     } else {
         $error_css = "";
         $displayError = "";
-        // no errors   name, surname, idcard, address, street, locality, email
+        // no errors   name, surname, idcard, address, street, gender, locality, email
         
         $gender = $_POST['gender'];
 
@@ -332,7 +360,7 @@ function check_input(&$data) {
                                 <label id="lblDOB">Date of Birth:</label>   
                             </td>
                             <td>
-                                <input type="text" name="dob" id="dob" value="<?php echo $dateOfBirth; ?>"></input>
+                                <input type="text" name="dob" id="dob" value="<?php $data_value; ?>"></input>*
                             </td>
                         </tr>
                         <tr>
@@ -353,10 +381,114 @@ function check_input(&$data) {
                         </tr>
                         <tr>
                             <td align="right">
+                            	<!-- locality functionality -->
                                 <label id="lblLocality">Locality:</label> 
                             </td>
                             <td>
-                                <input type="text" name="locality" id="locality" value="<?php echo $locality; ?>"></input>*
+                                <select name="locality">
+                                    <option value="ALBERT TOWN - MARSA">ALBERT TOWN - MARSA</option>
+                                    <option value="ATTARD">ATTARD</option>
+                                    <option value="BAHAR IC-CAGHAQ - NAXXAR">BAHAR IC-CAGHAQ - NAXXAR</option>
+                                    <option value="BAHRIJA - RABAT">BAHRIJA - RABAT</option>
+                                    <option value="BALZAN">BALZAN</option>
+                                    <option value="BIDNIJA - MOSTA">BIDNIJA - MOSTA</option>
+                                    <option value="BIDNIJA - ST. PAULS BAY">BIDNIJA - ST. PAULS BAY</option>
+                                    <option value="BIRGUMA - NAXXAR">BIRGUMA - NAXXAR</option>
+                                    <option value="BIRKIRKARA">BIRKIRKARA</option>
+                                    <option value="BIRZEBBUGA">BIRZEBBUGA</option>
+                                    <option value="BORMLA (Cospicua)">BORMLA (Cospicua)</option>
+                                    <option value="BUBAQRA - ZURRIEQ">BUBAQRA - ZURRIEQ</option>
+                                    <option value="BUGIBBA - ST. PAULS BAY">BUGIBBA - ST. PAULS BAY</option>
+                                    <option value="BULUBEL - ZEJTUN">BULUBEL - ZEJTUN</option>
+                                    <option value="BURMARRAD - ST. PAULS BAY">BURMARRAD - ST. PAULS BAY</option>
+                                    <option value="BUSKETT - DINGLI">BUSKETT - DINGLI</option>
+                                    <option value="CIRKEWWA - MELLIEHA">CIRKEWWA - MELLIEHA</option>
+                                    <option value="DELIMARA - MARSAXLOKK">DELIMARA - MARSAXLOKK</option>
+                                    <option value="DINGLI">DINGLI</option>
+                                    <option value="FGURA">FGURA</option>
+                                    <option value="FLEUR DE LYS - BIRKIRKARA">FLEUR DE LYS - BIRKIRKARA</option>
+                                    <option value="FLORIANA">FLORIANA</option>
+                                    <option value="GHADIRA - MELLIEHA">GHADIRA - MELLIEHA</option>
+                                    <option value="GHAJN TUFFIEHA - MELLIEHA">GHAJN TUFFIEHA - MELLIEHA</option>
+                                    <option value="GHAJN TUFFIEHA - MGARR">GHAJN TUFFIEHA - MGARR</option>
+                                    <option value="GHARGHUR">GHARGHUR</option>
+                                    <option value="GHAXAQ>">GHAXAQ</option>
+                                    <option value="GUDJA">GUDJA</option>
+                                    <option value="GWARDAMANGA - PIETA">GWARDAMANGA - PIETA</option>
+                                    <option value="GZIRA">GZIRA</option>
+                                    <option value="HAL FAR - BIRZEBBUGA">HAL FAR - BIRZEBBUGA</option>
+                                    <option value="HAL FARRUG - LUQA">HAL FARRUG - LUQA</option>
+                                    <option value="HAMRUN">HAMRUN</option>
+                                    <option value="IBRAG - SWIEQI">IBRAG - SWIEQI</option>
+                                    <option value="IKLIN">IKLIN</option>
+                                    <option value="IMRIEHEL - BIRKIRKARA">IMRIEHEL - BIRKIRKARA</option>
+                                    <option value="KALAFRANA- BIRZEBBUGA">KALAFRANA- BIRZEBBUGA</option>
+                                    <option value="KALKARA">KALKARA</option>
+                                    <option value="KAPPARA - SAN GWANN">KAPPARA - SAN GWANN</option>
+                                    <option value="KIRKOP">KIRKOP</option>
+                                    <option value="LIJA">LIJA</option>
+                                    <option value="LUQA">LUQA</option>
+                                    <option value="MADLIENA - SWIEQI">MADLIENA - SWIEQI</option>
+                                    <option value="MAGHTAB - NAXXAR">MAGHTAB - NAXXAR</option>
+                                    <option value="MANIKATA - MELLIEHA">MANIKATA - MELLIEHA</option>
+                                    <option value="MANOEL ISLAND - GZIRA">MANOEL ISLAND - GZIRA</option>
+                                    <option value="MARFA - MELLIEHA">MARFA - MELLIEHA</option>
+                                    <option value="MARSA">MARSA</option>
+                                    <option value="MARSASKALA">MARSASKALA</option>
+                                    <option value="MARSAXLOKK">MARSAXLOKK</option>
+                                    <option value="MDINA">MDINA</option>
+                                    <option value="MELLIEHA">MELLIEHA</option>
+                                    <option value="MGARR">MGARR</option>
+                                    <option value="MOSTA">MOSTA</option>
+                                    <option value="MQABBA">MQABBA</option>
+                                    <option value="MSIDA">MSIDA</option>
+                                    <option value="MTAHLEB - RABAT">MTAHLEB - RABAT</option>
+                                    <option value="MTARFA">MTARFA</option>
+                                    <option value="NAXXAR">NAXXAR</option>
+                                    <option value="PACEVILLE - ST. JULIANS">PACEVILLE - ST. JULIANS</option>
+                                    <option value="PAOLA">PAOLA</option>
+                                    <option value="PEMBROKE">PEMBROKE</option>
+                                    <option value="PIETA">PIETA</option>
+                                    <option value="PWALES - ST. PAULS BAY">PWALES - ST. PAULS BAY</option>
+                                    <option value="QAJJENZA - BIRZEBBUGA">QAJJENZA - BIRZEBBUGA</option>
+                                    <option value="QAWRA - ST. PAULS BAY">QAWRA - ST. PAULS BAY</option>
+                                    <option value="QORMI">QORMI</option>
+                                    <option value="QRENDI">QRENDI</option>
+                                    <option value="RABAT">RABAT</option>
+                                    <option value="SAFI">SAFI</option>
+                                    <option value="SALINA - NAXXAR">SALINA - NAXXAR</option>
+                                    <option value="SAN GWANN">SAN GWANN</option>
+                                    <option value="SAN MARTIN - ST. PAULS BAY">SAN MARTIN - ST. PAULS BAY</option>
+                                    <option value="SAN PAWL TAT-TARGA - NAXXAR">SAN PAWL TAT-TARGA - NAXXAR</option>
+                                    <option value="SANTA LUCIJA">SANTA LUCIJA</option>
+                                    <option value="SANTA MARIA ESTATE - MELLIEHA">SANTA MARIA ESTATE - MELLIEHA</option>
+                                    <option value="SANTA VENERA">SANTA VENERA</option>
+                                    <option value="SENGLEA (L-ISLA)">SENGLEA (L-ISLA)</option>
+                                    <option value="SIGGIEWI">SIGGIEWI</option>
+                                    <option value="SLIEMA">SLIEMA</option>
+                                    <option value="ST. JULIANS">ST. JULIANS</option>
+                                    <option value="ST. PAULS BAY">ST. PAULS BAY</option>
+                                    <option value="ST. PETERS - ZABBAR">ST. PETERS - ZABBAR</option>
+                                    <option value="SWATAR - MSIDA">SWATAR - MSIDA</option>
+                                    <option value="SWIEQI">SWIEQI</option>
+                                    <option value="TA PARIS - BIRKIRKARA">TA PARIS - BIRKIRKARA</option>
+                                    <option value="TA QALI - ATTARD">TA QALI - ATTARD</option>
+                                    <option value="TA XBIEX">TA XBIEX</option>
+                                    <option value="TAL-VIRTU - RABAT">TAL-VIRTU - RABAT</option>
+                                    <option value="TARXIEN">TARXIEN</option>
+                                    <option value="VALLETTA">VALLETTA</option>
+                                    <option value="VITTORIOSA (BIRGU)">VITTORIOSA (BIRGU)</option>
+                                    <option value="WARDIJA - ST. PAULS BAY">WARDIJA - ST. PAULS BAY</option>
+                                    <option value="XEMXIJA - ST. PAULS BAY">XEMXIJA - ST. PAULS BAY</option>
+                                    <option value="XGHAJRA">XGHAJRA</option>
+                                    <option value="ZABBAR">ZABBAR</option>
+                                    <option value="ZEBBIEGH - MGARR">ZEBBIEGH - MGARR</option>
+                                    <option value="ZEBBUG">ZEBBUG</option>
+                                    <option value="ZEJTUN">ZEJTUN</option>
+                                    <option value="ZURRIEQ">ZURRIEQ</option>
+                                   
+                                </select>
+                                
                             </td>
                         </tr>
                         <tr>
@@ -372,8 +504,10 @@ function check_input(&$data) {
                                 Gender: 
                             </td>
                             <td>
-                                <input type="radio" name="gender" id="gender" value="male">Male<br>
-                                <input type="radio" name="gender" id="gender" value="female">Female
+                            	<!-- gender functionality -->
+                                <input type="hidden" name="gender">
+                                <input type="radio" name="gender" value="1" <?php $_POST['gender'] = isset($_POST['gender']) ? $_POST['gender'] : 1?>/> Male</input>
+	<input type="radio" name="gender" value="2" <?php $_POST['gender'] = isset($_POST['gender']) ? $_POST['gender'] : 2?>/> Female</input>
                             </td>
                         </tr>
                         <tr>
@@ -395,7 +529,17 @@ function check_input(&$data) {
                                 <label id="lblEmail">Email:</label>
                             </td>
                             <td>
-                                <input type="text" name="email" id="email" value="<?php echo $email; ?>"></input>
+                                <input type="text" name="email" id="email" value="<?php echo $email; ?>"></input>*
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">
+                            	<!-- inContact functionality -->
+                                <label id="lblContact">In Contact List:</label>
+                            </td>
+                            <td>
+                            	<input type="hidden" name="inContact" value="0">
+                                <input type="checkbox" name="inContact" id="inContact" value="1" <?php $_POST['inContact'] = isset($_POST['inContact']) ? $_POST['inContact'] : 1?>/></input>
                             </td>
                         </tr>
                         <tr>
@@ -466,7 +610,6 @@ function check_input(&$data) {
                     </table>
                 </form>
             </div>
-        </tr>
         <tr>
     </tr>
 </table>
