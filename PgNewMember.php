@@ -360,7 +360,7 @@ function check_input(&$data) {
                                 <label id="lblDOB">Date of Birth:</label>   
                             </td>
                             <td>
-                                <input type="text" name="dob" id="dob" value="<?php $data_value; ?>"></input>*
+                                <input type="text" name="dob" id="dob" value="<?php $date_value; ?>"></input>*
                             </td>
                         </tr>
                         <tr>

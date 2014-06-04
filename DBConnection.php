@@ -9,18 +9,24 @@
  */
 class DBConnection {
 
-    private $dbh;
+
+
+
+    private $dbhost = "localhost";
+    private $dbusername = "root";
+    private $dbpassword = "";
+    private $dbname = "dbhospice";
 
     public function __construct() {
-        $this->dbh = new PDO('mysql:host=localhost;dbname=dbhospice', 'root', '123');
+       
 	   
 	  
     }
     
     public function getTitleList() {
-        $con = mysql_connect("localhost", "root", "123", "​​");
+        $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
 
-        $db = "dbhospice";
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM titles") or die(mysql_error());
         $unique_array = array();
@@ -33,9 +39,9 @@ class DBConnection {
     }
 
     public function getMembershipList() {
-        $con = mysql_connect("localhost", "root", "123", "dbhospice");
+      $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
 
-        $db = "dbhospice";
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM duration") or die(mysql_error());
         $unique_array = array();
@@ -49,7 +55,7 @@ class DBConnection {
     }
 
     public function addNewMember($title, $name, $surname, $address, $street, $locality, $postcode, $idcard, $gender, $landline, $mobile, $email,$inContact, $timeDeleted, $recordDeletedBy, $dateOfBirth, $recordDeletedReason) {
-        $dbConnection = mysqli_connect('localhost', 'root', '123', 'dbhospice');
+        $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
         $query = "INSERT INTO `members`(`Title_FK`, `Name`, `Surname`, `Address`, `Street`, `Locality`, `Postcode`, `IDCard`, `Gender`, `Landline`, `Mobile`, `Email`, `InContact`, `TimeDeleted`, `RecordDeletedBy`, `DateOfBirth`,`RecordDeletedReason`) 
             VALUES ('$title','$name','$surname','$address','$street','$locality','$postcode','$idcard','$gender','$landline',
@@ -63,9 +69,9 @@ class DBConnection {
     }
 
     public function checkMemberExists($idcard, $name, $surname, $email) {
-        $con = mysql_connect("localhost", "root", "123", "dbhospice");
+          $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
 
-        $db = "dbhospice";
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM `members` WHERE (UPPER(`IDCard`) ='$idcard' and UPPER(`Name`) = '$name' and UPPER(`Surname`) = '$surname' and UPPER(`Email`) = '$email');") or die(mysql_error());
         $unique_array = array();
@@ -79,9 +85,9 @@ class DBConnection {
     }
     
     public function getMemberShip($membershipID) {
-        $con = mysql_connect("localhost", "root", "123", "dbhospice");
-        
-        $db = "dbhospice";
+       $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM `duration` WHERE (ID ='$membershipID');") or die(mysql_error());
         $unique_array = array();
@@ -94,9 +100,9 @@ class DBConnection {
         return 0;
     }
     public function getMemberShipDurationByMembershipID($membershipID) {
-        $con = mysql_connect("localhost", "root", "123", "dbhospice");
-        
-        $db = "dbhospice";
+     $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM `duration` WHERE (ID ='$membershipID');") or die(mysql_error());
     //    $unique_array = array();
@@ -110,9 +116,9 @@ return "";
     
     
     public function getMemberShipPriceByID($membershipID) {
-        $con = mysql_connect("localhost", "root", "123", "dbhospice");
-        
-        $db = "dbhospice";
+     $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM `duration` WHERE (ID ='$membershipID');") or die(mysql_error());
     //    $unique_array = array();
@@ -127,9 +133,9 @@ return "";
     }
 	
 	public function getMemberShipNameByID($membershipID) {
-        $con = mysql_connect("localhost", "root", "123", "dbhospice");
-        
-        $db = "dbhospice";
+     $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM `duration` WHERE (ID ='$membershipID');") or die(mysql_error());
     //    $unique_array = array();
@@ -144,9 +150,9 @@ return "";
     }
     
     public function getMemberShipDetailsByID($membershipID) {
-        $con = mysql_connect("localhost", "root", "123", "dbhospice");
-        
-        $db = "dbhospice";
+     $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
         mysql_select_db($db, $con);
         $query = mysql_query("SELECT * FROM `duration` WHERE (ID ='$membershipID');") or die(mysql_error());
         $unique_array = array();
@@ -161,7 +167,7 @@ return "";
     
 	//amended to requirement 4- added additional fields and removed isRenewal
     public function addNewPayment($unitPrice, $quantity, $unitDuration, $memberId, $membershipId) {
-        $dbConnection = mysqli_connect('localhost', 'root', '123', 'dbhospice');
+        $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
         $query = "INSERT INTO `payments`(`UnitPrice`, `Quantity`, `UnitDuration`, `MemberID`, `MembershipID`)
             VALUES ('$unitPrice','$quantity','$unitDuration', '$memberId','$membershipId')";
@@ -173,7 +179,7 @@ return "";
     }
 	//amended to requirement 4- added additional fields and removed others
      public function addNewMemberShip($paidDate, $fromDate, $toDate, $paymentMethod, $numberOfYears, $totalPrice, $memberID, $isRenewal) {
-        $dbConnection = mysqli_connect('localhost', 'root', '123', 'dbhospice');
+      $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
         $query = "INSERT INTO `memberships`(`PaidDate`, `FromDate`, `ToDate`, `PaymentMethod`, `NumberOfYears`, `TotalPrice`, `MemberID`, `isRenewal`)"
                 . "VALUES ('$paidDate', '$fromDate', '$toDate', '$paymentMethod', '$numberOfYears', '$totalPrice', '$memberID', '$isRenewal')";
