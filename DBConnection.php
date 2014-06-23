@@ -56,13 +56,41 @@ class DBConnection {
 
     public function addNewMember($title, $name, $surname, $address, $street, $locality, $postcode, $idcard, $gender, $landline, $mobile, $email,$inContact, $timeDeleted, $recordDeletedBy, $dateOfBirth, $recordDeletedReason) {
         $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
-        
-        $query = "INSERT INTO `members`(`Title_FK`, `Name`, `Surname`, `Address`, `Street`, `Locality`, `Postcode`, `IDCard`, `Gender`, `Landline`, `Mobile`, `Email`, `InContact`, `TimeDeleted`, `RecordDeletedBy`, `DateOfBirth`,`RecordDeletedReason`) 
+
+        $update = false;
+        $memberid = checkMemberExistsID($idcard)
+        if ($memberid<>0)
+        {
+            $query = "UPDATE `members` SET `Title_FK` = $title, `Name` = $name, `Surname` = $surname, `Address` = $address, `Street` = $street, `Locality` = $locality, `Postcode` = $postcode, `Gender` = $gender, `Landline` = $landline, `Mobile` = $mobile, 
+            `Email` = $email, `InContact` = $inContact, `TimeDeleted` = $timeDeleted, `RecordDeletedBy` =$recordDeletedBy, `DateOfBirth`= $dateOfBirth,`RecordDeletedReason` = $recordDeletedReason WHERE `IDCard` = $idcard";
+            //test the query
+            echo $query;
+                //insert a new membership
+
+            $update = true;
+
+        }
+        else
+        {
+            $query = "INSERT INTO `members`(`Title_FK`, `Name`, `Surname`, `Address`, `Street`, `Locality`, `Postcode`, `IDCard`, `Gender`, `Landline`, `Mobile`, `Email`, `InContact`, `TimeDeleted`, `RecordDeletedBy`, `DateOfBirth`,`RecordDeletedReason`) 
             VALUES ('$title','$name','$surname','$address','$street','$locality','$postcode','$idcard','$gender','$landline',
                '$mobile','$email ','$inContact','$timeDeleted', '$recordDeletedBy', '$dateOfBirth','$RecordDeletedReason')";
+            //insert a new membership based on a new member
+            
+
+        }
+
+        //add payment
      
         if (mysqli_query($dbConnection, $query)) {
-            return true;// "Successfully inserted " . mysqli_affected_rows($dbConnection) . " row";
+            if ($update)
+            {
+                return $memberid;
+            }
+            else
+            {
+            return mysqli_insert_id($dbConnection);
+            }
         } else {
             return "Error occurred: " . mysqli_error($dbConnection);
         }
@@ -83,6 +111,24 @@ class DBConnection {
 
         return false;
     }
+
+
+public function checkMemberExistsID($idcard) {
+          $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
+        mysql_select_db($db, $con);
+        $query = mysql_query("SELECT * FROM `members` WHERE (UPPER(`IDCard`) ='$idcard'") or die(mysql_error());
+        $unique_array = array();
+
+        while ($row = mysql_fetch_assoc($query)) {
+            return $row['memberid'];
+            
+        }
+
+        return false;
+    }
+
     
     public function getMemberShip($membershipID) {
        $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
@@ -166,29 +212,33 @@ return "";
     }
     
 	//amended to requirement 4- added additional fields and removed isRenewal
-    public function addNewPayment($unitPrice, $quantity, $unitDuration, $memberId, $membershipId) {
+    public function addNewPayment($unitPrice, $quantity, $memberId, $membershipId) {
         $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
-        $query = "INSERT INTO `payments`(`UnitPrice`, `Quantity`, `UnitDuration`, `MemberID`, `MembershipID`)
-            VALUES ('$unitPrice','$quantity','$unitDuration', '$memberId','$membershipId')";
+        $query = "INSERT INTO `payments`(`UnitPrice`, `Quantity`, `MemberID`, `MembershipID`)
+            VALUES ('$unitPrice','$quantity','$memberId','$membershipId')";
         if (mysqli_query($dbConnection, $query)) {
             echo "Successfully inserted " . mysqli_affected_rows($dbConnection) . " row";
         } else {
             echo "Error occurred: " . mysqli_error($dbConnection);
         }
     }
-	//amended to requirement 4- added additional fields and removed others
-     public function addNewMemberShip($paidDate, $fromDate, $toDate, $paymentMethod, $numberOfYears, $totalPrice, $memberID, $isRenewal) {
+
+
+
+    //amended to requirement 4- added additional fields and removed others
+     public function addNewMemberShip($paidDate, $paymentMethod, $totalPrice, $memberID, $membershipid) {
       $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
-        $query = "INSERT INTO `memberships`(`PaidDate`, `FromDate`, `ToDate`, `PaymentMethod`, `NumberOfYears`, `TotalPrice`, `MemberID`, `isRenewal`)"
-                . "VALUES ('$paidDate', '$fromDate', '$toDate', '$paymentMethod', '$numberOfYears', '$totalPrice', '$memberID', '$isRenewal')";
+        $query = "INSERT INTO `memberships`(`PaidDate`, `PaymentMethod`, `TotalPrice`, `MemberID`, 'MembershipID')"
+                . "VALUES ('$paidDate', '$paymentMethod', '$totalPrice', '$memberID', '$membershipid')";
         if (mysqli_query($dbConnection, $query)) {
             echo "Successfully inserted " . mysqli_affected_rows($dbConnection) . " row";
         } else {
             echo "Error occurred: " . mysqli_error($dbConnection);
         }
     }
+
 }
 
 ?>

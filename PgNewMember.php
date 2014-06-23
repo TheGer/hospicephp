@@ -90,7 +90,7 @@ curl_close($curl);
 
 
 
-$title = "";
+        $title = "";
         $name = "";
         $surname = "";
         $dateOfBirth = "";
@@ -137,14 +137,21 @@ if (isset($_POST['submit'])) {
 	
     // Loop over requiredFields and output error if any are empty
     foreach ($requiredFields as $r) {
-        if (strlen($_POST[$r]) == 0) {
+
+        if (strpos($r,',')) {
+            $errors = true;
+            $error_css = 'background-color:red';
+            $displayError = $displayError . '<br />• ' . $r . ' cannot contain commas or spaces.';
+        }
+
+        if (strlen($r) == 0) {
             $errors = true;
             $error_css = 'background-color:red';
             $displayError = "" . $displayError . "<br />• " . $r . " cannot be empty.";
         }
         if ($r == 'name') {
             //Checks that name does not contain any integers
-            if (strcspn($_POST[$r], '0123456789') != strlen($_POST[$r])) {
+            if (strcspn($r, '0123456789') != strlen($r)) {
                 $errors = true;
                 $error_css = 'background-color:red';
                 $displayError = $displayError . '<br />• ' . $r . ' cannot contain numbers.';
@@ -152,7 +159,7 @@ if (isset($_POST['submit'])) {
         }
         if ($r == 'surname') {
             //Checks that surname does not contain any integers
-            if (strcspn($_POST[$r], '0123456789') != strlen($_POST[$r])) {
+            if (strcspn($r, '0123456789') != strlen($r)) {
                 $errors = true;
                 $error_css = 'background-color:red';
                 $displayError = $displayError . '<br />• ' . $r . ' cannot contain numbers.';
@@ -161,12 +168,14 @@ if (isset($_POST['submit'])) {
 		
         if ($r == 'idcard') {
             //Checks that idcard last letter must be a letter
-            if (!(strcspn(substr($_POST[$r], -1), '0123456789') != strlen(substr($_POST[$r], -1)))) {
+            if (!(strcspn(substr($r, -1), '0123456789') != strlen(substr($r, -1)))) {
                $errors = true;
                $error_css = 'background-color:red';
                $displayError = $displayError . "<br />• " . $r . ' should be in a correct format e.g. (1234A).';
 			}
         }
+
+        
     }
 
     if (strlen($_POST['mobile']) != 0) {
@@ -219,7 +228,7 @@ if (isset($_POST['submit'])) {
 $title = strip_tags($_POST['title']);
         $name = strip_tags($_POST['name']);
         $surname = strip_tags($_POST['surname']);
-        $dateOfBirth = strip_tags($_POST['dob']);
+        $dateOfBirth = $date_value;
         $address = strip_tags($_POST['address']);
         $street = strip_tags($_POST['street']);
         $gender = strip_tags($_POST['gender']);
@@ -266,8 +275,12 @@ $title = strip_tags($_POST['title']);
 			//return true
 		
 			//if true, addedsuccess
+
+            $membershipName = $db->getMembershipNameByID($duration);
+            $membershipPrice = $db->getMembershipPriceByID($duration);
+
 			
-			$addedSuccess = getPayment($db->getMembershipNameByID($duration),$db->getMembershipPriceByID($duration),$cctype,$ccnumber,$cvv2,$expdate,$name,$surname,$street,$locality);
+			$addedSuccess = getPayment($membershipName,$membershipPrice,$cctype,$ccnumber,$cvv2,$expdate,$name,$surname,$street,$locality);
 			
 			
  
@@ -279,10 +292,20 @@ $title = strip_tags($_POST['title']);
 				//insert into payments
 			
 				//insert into memberships
+
+			$memberID = $db->addNewMember($title, $name, $surname, $address, $street, $locality, $postcode, $idcard, $gender, $landline, $mobile, $email, $incontact, null, null,$dateOfBirth,null);
 			
-			$addedSuccess = $db->addNewMember($title, $name, $surname, $address, $street, $locality, $postcode, $idcard, $gender, $landline, $mobile, $email, $incontact, false);
-			
-				
+            //add payment
+            
+            $paidDate = date("Y-m-d");
+            $paymentMethod = "CC";
+            
+            
+			$db->addNewMemberShip($paidDate, $membershipName, $paymentMethod,  $membershipPrice, $memberID,$duration);
+
+            //add membership
+            $db->addNewPayment($unitPrice, $quantity, $memberId, $duration)
+
             } else {
                 $message = "Sorry, Member was not added successfully.";
                 echo "<script type='text/javascript'>alert('$message');</script>";
@@ -615,22 +638,5 @@ function check_input(&$data) {
 </table>
 
 
-<!--
-<form method="post" id="frmMembershipPayment" action="https://www.paypal.com/cgi-bin/webscr" target="paypal">
-    <input type="hidden" name="cmd" value="_cart">
-    <input type="hidden" name="business" value="hospice@email.com">
-    <input type="hidden" name="item_name" value="<?php echo htmlspecialchars($membershipType); ?>" />
-    <input type="hidden" name="item_number" value="">
-    <input type="hidden" name="amount" value="<?php echo htmlspecialchars($membershipCost); ?>" > 
-    <input type="hidden" name="currency_code" value="EUR">
-    <input type="hidden" name="shipping" value="">
-    <input type="hidden" name="shipping2" value="">
-    <input type="hidden" name="handling_cart" value="">
-    <input type="hidden" name="bn"  value="ButtonFactory.PayPal.001">
-    <input type="image" name="add" src="http://www.powersellersunite.com/buttonfactory/x-click-but23.gif">
-</form>
-
-
--->
 </body>
 </html>
