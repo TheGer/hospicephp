@@ -304,7 +304,7 @@ $title = strip_tags($_POST['title']);
 			$membershipID = $db->addNewMemberShip($paidDate, $paymentMethod,  $membershipPrice, $memberID[0],$duration,$memberID[1]);
 
             //add membership
-            $db->addNewPayment($membershipPrice, 1,$db->getMembershipValue($duration), $memberID[0],$membershipID)
+            $db->addNewPayment($membershipPrice, 1,$db->getMembershipValue($duration), $memberID[0],$membershipID);
 
             } else {
                 $message = "Sorry, Member was not added successfully.";
@@ -314,7 +314,7 @@ $title = strip_tags($_POST['title']);
     
         }
     }
-}
+
 
 // check_input function
 function check_input(&$data) {
@@ -337,7 +337,7 @@ function check_input(&$data) {
         <table>
             <tr>
             <div id="divInfo">
-                <form action="PgNewMember.php" method="post">
+                <form action="MembershipForm.php" method="post">
                     <h1>New Membership</h1>
                     <table>
                         <tr>

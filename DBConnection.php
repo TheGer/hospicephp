@@ -74,7 +74,7 @@ class DBConnection {
         $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
 
         $update = false;
-        $memberid = checkMemberExistsID($idcard)
+        $memberid = checkMemberExistsID($idcard);
         if ($memberid<>0)
         {
             $query = "UPDATE `members` SET `Title_FK` = $title, `Name` = $name, `Surname` = $surname, `Address` = $address, `Street` = $street, `Locality` = $locality, `Postcode` = $postcode, `Gender` = $gender, `Landline` = $landline, `Mobile` = $mobile, 
