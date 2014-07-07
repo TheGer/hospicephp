@@ -266,14 +266,6 @@ $title = strip_tags($_POST['title']);
 
         $exists = $db->checkMemberExists(strtoupper($idcard), strtoupper($name), strtoupper($surname), strtoupper($email));
 
-        if ($exists) {
-            $message = "Member Already Exists";
-            echo "<script type='text/javascript'>alert('$message');</script>";
-			
-			
-			
-			
-        } else {
 			//query paypal
 			//check card success
 			//return true
@@ -305,7 +297,7 @@ $title = strip_tags($_POST['title']);
             $paidDate = time();
             $paymentMethod = "Online";
             
-			if (
+			
 			
 			
             
