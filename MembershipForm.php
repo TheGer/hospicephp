@@ -4,7 +4,7 @@
 function getPayment($membershipType,$membershipCost,$cctype,$ccnumber,$cvv2,$expdate,$firstname,$lastname,$street,$city)
 {
 
-$mainurl = 'http://localhost/phptest/PgNewMember';
+$mainurl = 'http://localhost/hospicephp/MembershipForm';
 	// Set sandbox (test mode) to true/false.
 $sandbox = TRUE;
 
@@ -67,8 +67,13 @@ $curl = curl_init();
 	//this is what is returned from paypal	
 $result = curl_exec($curl);
 
-	//close the curl connection
 
+if ($result === FALSE) {
+    printf("cUrl error (#%d): %s<br>\n", curl_errno($curl),
+           htmlspecialchars(curl_error($curl)));
+}
+	//close the curl connection
+//echo $result;
 
 parse_str($result,$response_array);
 
@@ -165,7 +170,7 @@ if (isset($_POST['submit'])) {
                 $displayError = $displayError . '<br />• ' . $r . ' cannot contain numbers.';
             }
         }
-		
+/*		
         if ($r == 'idcard') {
             //Checks that idcard last letter must be a letter
             if (!(strcspn(substr($r, -1), '0123456789') != strlen(substr($r, -1)))) {
@@ -174,6 +179,7 @@ if (isset($_POST['submit'])) {
                $displayError = $displayError . "<br />• " . $r . ' should be in a correct format e.g. (1234A).';
 			}
         }
+		*/
 
         
     }
