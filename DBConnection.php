@@ -53,6 +53,22 @@ class DBConnection {
 
         return $unique_array;
     }
+	
+	public function getMembershipValue($id)
+	{
+		$con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
+        mysql_select_db($db, $con);
+        $query = mysql_query("SELECT value FROM duration WHERE ID = $id") or die(mysql_error());
+		
+		  while ($row = mysql_fetch_assoc($query)) {
+			return $row['value'];
+			break;
+		  }
+	
+	}
+	
 
     public function addNewMember($title, $name, $surname, $address, $street, $locality, $postcode, $idcard, $gender, $landline, $mobile, $email,$inContact, $timeDeleted, $recordDeletedBy, $dateOfBirth, $recordDeletedReason) {
         $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
@@ -80,16 +96,20 @@ class DBConnection {
 
         }
 
-        //add payment
-     
+         
+		 
         if (mysqli_query($dbConnection, $query)) {
             if ($update)
             {
-                return $memberid;
+				//add payment
+				$updateArr = array(0=>$memberid,1=>'update');
+				return $updateArr;
             }
             else
             {
-            return mysqli_insert_id($dbConnection);
+				$memberid = mysql_insert_id();
+				$updateArr = array(0=>$memberid,1=>'new');
+				return $updateArr;
             }
         } else {
             return "Error occurred: " . mysqli_error($dbConnection);
@@ -211,12 +231,15 @@ return "";
         return 0;
     }
     
+	
+	
+	  
 	//amended to requirement 4- added additional fields and removed isRenewal
-    public function addNewPayment($unitPrice, $quantity, $memberId, $membershipId) {
+    public function addNewPayment($unitPrice, $quantity,$unitDuration, $memberId, $membershipId) {
         $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
-        $query = "INSERT INTO `payments`(`UnitPrice`, `Quantity`, `MemberID`, `MembershipID`)
-            VALUES ('$unitPrice','$quantity','$memberId','$membershipId')";
+        $query = "INSERT INTO `payments`(`UnitPrice`, `Quantity`,'UnitDuration', `MemberID`, `MembershipID`)
+            VALUES ('$unitPrice','$quantity','$unitDuration','$memberId','$membershipId')";
         if (mysqli_query($dbConnection, $query)) {
             echo "Successfully inserted " . mysqli_affected_rows($dbConnection) . " row";
         } else {
@@ -225,15 +248,43 @@ return "";
     }
 
 
-
+	
     //amended to requirement 4- added additional fields and removed others
-     public function addNewMemberShip($paidDate, $paymentMethod, $totalPrice, $memberID, $membershipid) {
+     public function addNewMemberShip($paidDate, $paymentMethod, $totalPrice, $memberID, $duration,$renewal) {
+	 
+	 
+		if ($renewal == 'update')
+		{
+			$renewal = 1;
+		}
+		else
+		{
+			$renewal = 0;
+		}
+	 
       $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
-        $query = "INSERT INTO `memberships`(`PaidDate`, `PaymentMethod`, `TotalPrice`, `MemberID`, 'MembershipID')"
-                . "VALUES ('$paidDate', '$paymentMethod', '$totalPrice', '$memberID', '$membershipid')";
+		$membershipLengthValue = getMembershipValue($duration);
+		
+		
+		if ($membershipLengthValue != 99)
+		{
+		$toDate = $paidDate + strtotime($paidDate + $membershipLengthValue + " years");
+		}
+		else
+		{
+			$membershipLengthValue = '';
+			$toDate = '';
+		}	
+		
+		
+		//echo $toDate;
+		
+        $query = "INSERT INTO `memberships`(`PaidDate`,`FromDate`, `ToDate`,`PaymentMethod`, `TotalPrice`, `MemberID`, 'NumberOfYears','IsRenewal')"
+                . "VALUES ('$paidDate','$paidDate','$toDate',$paymentMethod', '$totalPrice', '$memberID', '$membershipLengthValue','$renewal')";
         if (mysqli_query($dbConnection, $query)) {
             echo "Successfully inserted " . mysqli_affected_rows($dbConnection) . " row";
+			return mysql_insert_id();
         } else {
             echo "Error occurred: " . mysqli_error($dbConnection);
         }

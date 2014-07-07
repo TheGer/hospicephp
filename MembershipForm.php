@@ -269,6 +269,10 @@ $title = strip_tags($_POST['title']);
         if ($exists) {
             $message = "Member Already Exists";
             echo "<script type='text/javascript'>alert('$message');</script>";
+			
+			
+			
+			
         } else {
 			//query paypal
 			//check card success
@@ -292,19 +296,23 @@ $title = strip_tags($_POST['title']);
 				//insert into payments
 			
 				//insert into memberships
-
-			$memberID = $db->addNewMember($title, $name, $surname, $address, $street, $locality, $postcode, $idcard, $gender, $landline, $mobile, $email, $incontact, null, null,$dateOfBirth,null);
 			
+			
+			$memberID = $db->addNewMember($title, $name, $surname, $address, $street, $locality, $postcode, $idcard, $gender, $landline, $mobile, $email, $incontact, null, null,$dateOfBirth,null);
+				
             //add payment
             
-            $paidDate = date("Y-m-d");
-            $paymentMethod = "CC";
+            $paidDate = time();
+            $paymentMethod = "Online";
             
+			if (
+			
+			
             
-			$db->addNewMemberShip($paidDate, $membershipName, $paymentMethod,  $membershipPrice, $memberID,$duration);
+			$membershipID = $db->addNewMemberShip($paidDate, $paymentMethod,  $membershipPrice, $memberID[0],$duration,$memberID[1]);
 
             //add membership
-            $db->addNewPayment($unitPrice, $quantity, $memberId, $duration)
+            $db->addNewPayment($membershipPrice, 1,$db->getMembershipValue($duration), $memberID[0],$membershipID)
 
             } else {
                 $message = "Sorry, Member was not added successfully.";
