@@ -282,9 +282,9 @@ $title = strip_tags($_POST['title']);
             $membershipPrice = $db->getMembershipPriceByID($duration);
 
 			
-			$addedSuccess = getPayment($membershipName,$membershipPrice,$cctype,$ccnumber,$cvv2,$expdate,$name,$surname,$street,$locality);
+		//	$addedSuccess = getPayment($membershipName,$membershipPrice,$cctype,$ccnumber,$cvv2,$expdate,$name,$surname,$street,$locality);
 			
-			
+			$addedSuccess = true;
  
  
 			if ($addedSuccess) {

@@ -22,6 +22,28 @@ class DBConnection {
 	   
 	  
     }
+	
+	public function checkMemberExistsID($idcard) {
+          $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
+
+        $db = $this->dbname;
+        mysql_select_db($db, $con);
+		
+		$querystr = "SELECT * FROM `members` WHERE (UPPER(`IDCard`) ='$idcard')";
+		
+		echo $querystr;
+		
+        $query = mysql_query($querystr) or die(mysql_error());
+        $unique_array = array();
+
+        while ($row = mysql_fetch_assoc($query)) {
+            return $row['memberid'];
+            
+        }
+
+        return false;
+    }
+
     
     public function getTitleList() {
         $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
@@ -74,7 +96,7 @@ class DBConnection {
         $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
 
         $update = false;
-        $memberid = checkMemberExistsID($idcard);
+        $memberid = $this->checkMemberExistsID($idcard);
         if ($memberid<>0)
         {
             $query = "UPDATE `members` SET `Title_FK` = $title, `Name` = $name, `Surname` = $surname, `Address` = $address, `Street` = $street, `Locality` = $locality, `Postcode` = $postcode, `Gender` = $gender, `Landline` = $landline, `Mobile` = $mobile, 
@@ -133,21 +155,6 @@ class DBConnection {
     }
 
 
-public function checkMemberExistsID($idcard) {
-          $con = mysql_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
-
-        $db = $this->dbname;
-        mysql_select_db($db, $con);
-        $query = mysql_query("SELECT * FROM `members` WHERE (UPPER(`IDCard`) ='$idcard'") or die(mysql_error());
-        $unique_array = array();
-
-        while ($row = mysql_fetch_assoc($query)) {
-            return $row['memberid'];
-            
-        }
-
-        return false;
-    }
 
     
     public function getMemberShip($membershipID) {
@@ -264,7 +271,7 @@ return "";
 	 
       $dbConnection = mysqli_connect($this->dbhost, $this->dbusername, $this->dbpassword, $this->dbname);
         
-		$membershipLengthValue = getMembershipValue($duration);
+		$membershipLengthValue = $this->getMembershipValue($duration);
 		
 		
 		if ($membershipLengthValue != 99)
@@ -281,7 +288,10 @@ return "";
 		//echo $toDate;
 		
         $query = "INSERT INTO `memberships`(`PaidDate`,`FromDate`, `ToDate`,`PaymentMethod`, `TotalPrice`, `MemberID`, 'NumberOfYears','IsRenewal')"
-                . "VALUES ('$paidDate','$paidDate','$toDate',$paymentMethod', '$totalPrice', '$memberID', '$membershipLengthValue','$renewal')";
+                . "VALUES ('$paidDate','$paidDate','$toDate','$paymentMethod', '$totalPrice', '$memberID', '$membershipLengthValue','$renewal')";
+				
+		echo $query;		
+				
         if (mysqli_query($dbConnection, $query)) {
             echo "Successfully inserted " . mysqli_affected_rows($dbConnection) . " row";
 			return mysql_insert_id();
