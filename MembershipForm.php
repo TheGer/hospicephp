@@ -143,20 +143,20 @@ if (isset($_POST['submit'])) {
     // Loop over requiredFields and output error if any are empty
     foreach ($requiredFields as $r) {
 
-        if (strpos($r,',')) {
+        if (strpos($_POST[$r],',')) {
             $errors = true;
             $error_css = 'background-color:red';
             $displayError = $displayError . '<br />• ' . $r . ' cannot contain commas or spaces.';
         }
 
-        if (strlen($r) == 0) {
+        if (strlen($_POST[$r]) == 0) {
             $errors = true;
             $error_css = 'background-color:red';
             $displayError = "" . $displayError . "<br />• " . $r . " cannot be empty.";
         }
         if ($r == 'name') {
             //Checks that name does not contain any integers
-            if (strcspn($r, '0123456789') != strlen($r)) {
+            if (strcspn($_POST[$r], '0123456789') != strlen($_POST[$r])) {
                 $errors = true;
                 $error_css = 'background-color:red';
                 $displayError = $displayError . '<br />• ' . $r . ' cannot contain numbers.';
@@ -164,22 +164,22 @@ if (isset($_POST['submit'])) {
         }
         if ($r == 'surname') {
             //Checks that surname does not contain any integers
-            if (strcspn($r, '0123456789') != strlen($r)) {
+            if (strcspn($_POST[$r], '0123456789') != strlen($_POST[$r])) {
                 $errors = true;
                 $error_css = 'background-color:red';
                 $displayError = $displayError . '<br />• ' . $r . ' cannot contain numbers.';
             }
         }
-/*		
+		
         if ($r == 'idcard') {
             //Checks that idcard last letter must be a letter
-            if (!(strcspn(substr($r, -1), '0123456789') != strlen(substr($r, -1)))) {
+            if (!(strcspn(substr($_POST[$r], -1), '0123456789') != strlen(substr($_POST[$r], -1)))) {
                $errors = true;
                $error_css = 'background-color:red';
                $displayError = $displayError . "<br />• " . $r . ' should be in a correct format e.g. (1234A).';
 			}
         }
-		*/
+		
 
         
     }
